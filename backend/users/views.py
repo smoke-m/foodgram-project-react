@@ -1,5 +1,6 @@
-from rest_framework import generics
 from djoser.views import UserViewSet
+from rest_framework import generics
+
 
 class UserView(generics.RetrieveAPIView):
     serializer_class = UserViewSet.serializer_class
