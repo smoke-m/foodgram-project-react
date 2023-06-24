@@ -16,15 +16,12 @@ class PasswordChangeSerializer(serializers.Serializer):
 
     def validate_current_password(self, value):
         user = self.context['request'].user
-
         if not user.check_password(value):
             raise serializers.ValidationError('Invalid current password.')
-
         return value
 
     def validate_new_password(self, value):
         if len(value) < 8:
             raise serializers.ValidationError(
                 'New password must be at least 8 characters long.')
-
         return value

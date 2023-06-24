@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_204_NO_CONTENT
 
 from .models import User
-from .serializers import UserSerializer, PasswordChangeSerializer
+from .serializers import PasswordChangeSerializer, UserSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
