@@ -11,16 +11,16 @@ class UserViewSet(viewsets.ModelViewSet):
     """Вьюсет модели User."""
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (permissions.AllowAny,)
-    # permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
-    @action(detail=False, url_path='me', methods=('get',))
+    @action(detail=False, url_path='me', methods=('get',),
+            permission_classes=(permissions.IsAuthenticated,))
     def get_current_user(self, request):
         """Метод 'me'."""
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
 
-    @action(detail=False, url_path='set_password', methods=('post',))
+    @action(detail=False, url_path='set_password', methods=('post',),
+            permission_classes=(permissions.IsAuthenticated,))
     def set_password(self, request):
         """Метод 'set_password'."""
         serializer = PasswordChangeSerializer(
