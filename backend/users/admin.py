@@ -1,3 +1,14 @@
-from django.contrib import admin
+from django.contrib.admin import register
+from django.contrib.auth.admin import UserAdmin
 
-# Register your models here.
+from .models import User
+
+
+@register(User)
+class MyUserAdmin(UserAdmin):
+    list_display = ('pk', 'username', 'email', 'first_name', 'last_name',
+                    'role', 'is_staff', 'password')
+    list_filter = ('username', 'email')
+    search_fields = ('username', 'email')
+    empty_value_display = '-пусто-'
+    list_editable = ('role', 'is_staff')
