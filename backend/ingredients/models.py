@@ -3,7 +3,8 @@ from django.db import models
 
 
 class Ingredient(models.Model):
-    name = models.CharField(max_length=settings.NAME_LENGTH)
+    """Модель для  Ingredient."""
+    name = models.CharField(max_length=settings.NAME_LENGTH, unique=True)
     measurement_unit = models.CharField(max_length=settings.MEASURE_LENGTH)
 
     class Meta:

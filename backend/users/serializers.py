@@ -11,6 +11,7 @@ def subscribed(self, obj):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """Сериализатор модели User."""
     password = serializers.CharField(write_only=True)
     is_subscribed = serializers.SerializerMethodField()
 
@@ -30,6 +31,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class PasswordChangeSerializer(serializers.Serializer):
+    """Сериализатор смены пароля."""
     current_password = serializers.CharField(required=True,)
     new_password = serializers.CharField(required=True,)
 
@@ -47,6 +49,7 @@ class PasswordChangeSerializer(serializers.Serializer):
 
 
 class FollowSerializer(serializers.ModelSerializer):
+    """Сериализатор получения подписок."""
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
