@@ -28,7 +28,7 @@ class User(AbstractUser):
                             choices=ROLE, default=USER)
 
     class Meta:
-        ordering = ['-id']
+        ordering = ['username']
         constraints = [
             models.UniqueConstraint(
                 fields=['username', 'email'],
