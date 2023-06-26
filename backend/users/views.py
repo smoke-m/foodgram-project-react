@@ -4,7 +4,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from .models import Follow, User
-from .serializers import PasswordChangeSerializer, UserSerializer
+from .serializers import (FollowSerializer, PasswordChangeSerializer,
+                          UserSerializer)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -32,7 +33,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, url_path='subscribe', methods=('post', 'delete'),
             permission_classes=(permissions.IsAuthenticated,))
-    def subscriptions(self, request, pk):
+    def subscribe(self, request, pk):
         """Метод создания и удаления 'subscribe'."""
         user = request.user
         author = get_object_or_404(User, id=pk)
@@ -40,16 +41,29 @@ class UserViewSet(viewsets.ModelViewSet):
             user=user.id, author=author.id)
         if request.method == 'POST':
             if user == author:
-                return Response('Нельзя подписаться на себя!',
+                return Response({'errors': 'Нельзя подписаться на себя!'},
                                 status=status.HTTP_400_BAD_REQUEST)
             if change_subscription_status.exists():
-                return Response(f'Вы уже подписаны на {author}!',
+                return Response({'errors': 'Уже подписаны!'},
                                 status=status.HTTP_400_BAD_REQUEST)
             Follow.objects.create(user=user, author=author).save()
-            serializer = UserSerializer(author)
+            serializer = UserSerializer(
+                author, context={'request': request},)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         if change_subscription_status.exists():
             change_subscription_status.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response({'errors': 'Такой подписки нет'},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, url_path='subscriptions', methods=('get',),
+            permission_classes=(permissions.IsAuthenticated,))
+    def subscriptions(self, request):
+        """Метод получения списка 'subscriptions'."""
+        queryset = User.objects.filter(follow__user=self.request.user)
+        if queryset:
+            serializer = FollowSerializer(
+                queryset, context={'request': request}, many=True,)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({'errors': 'Подписок нет'},
                         status=status.HTTP_400_BAD_REQUEST)
