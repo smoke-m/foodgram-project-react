@@ -5,13 +5,17 @@ from rest_framework.response import Response
 
 from .models import Follow, User
 from .serializers import (FollowSerializer, PasswordChangeSerializer,
-                          UserSerializer)
+                          UserCreteSerializer, UserSerializer)
 
 
 class UserViewSet(viewsets.ModelViewSet):
     """Вьюсет модели User."""
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+
+    def get_serializer_class(self):
+        if self.action in ('create',):
+            return UserCreteSerializer
+        return UserSerializer
 
     @action(detail=False, url_path='me', methods=('get',),
             permission_classes=(permissions.IsAuthenticated,))
@@ -62,8 +66,9 @@ class UserViewSet(viewsets.ModelViewSet):
         """Метод получения списка 'subscriptions'."""
         queryset = User.objects.filter(follow__user=self.request.user)
         if queryset:
+            queryset_pag = self.paginate_queryset(queryset)
             serializer = FollowSerializer(
-                queryset, context={'request': request}, many=True,)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+                queryset_pag, context={'request': request}, many=True,)
+            return self.get_paginated_response(serializer.data)
         return Response({'errors': 'Подписок нет'},
                         status=status.HTTP_400_BAD_REQUEST)

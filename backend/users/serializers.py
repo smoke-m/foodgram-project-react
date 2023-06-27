@@ -3,31 +3,37 @@ from rest_framework import serializers
 from .models import Follow, User
 
 
-def subscribed(self, obj):
-    user = self.context.get('request').user
-    if user.is_anonymous:
-        return False
-    return Follow.objects.filter(user=user, author=obj.id).exists()
-
-
-class UserSerializer(serializers.ModelSerializer):
-    """Сериализатор модели User."""
+class UserCreteSerializer(serializers.ModelSerializer):
+    """Сериализатор регистрации модели User."""
     password = serializers.CharField(write_only=True)
-    is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = ['id', 'username', 'last_name', 'first_name', 'email',
-                  'password', 'is_subscribed']
-        read_only_fields = ['id', 'is_subscribed']
+                  'password']
+        read_only_fields = ['id']
 
     def create(self, validated_data):
         password = validated_data.pop('password')
         user = User.objects.create_user(password=password, **validated_data)
         return user
 
+
+class UserSerializer(serializers.ModelSerializer):
+    """Сериализатор модели User."""
+    is_subscribed = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'last_name', 'first_name', 'email',
+                  'is_subscribed']
+        read_only_fields = ['id', 'is_subscribed']
+
     def get_is_subscribed(self, obj):
-        return subscribed(self, obj)
+        user = self.context.get('request').user
+        if user.is_anonymous:
+            return False
+        return Follow.objects.filter(user=user, author=obj.id).exists()
 
 
 class PasswordChangeSerializer(serializers.Serializer):
@@ -48,14 +54,9 @@ class PasswordChangeSerializer(serializers.Serializer):
         return value
 
 
-class FollowSerializer(serializers.ModelSerializer):
+class FollowSerializer(UserSerializer):
     """Сериализатор получения подписок."""
-    is_subscribed = serializers.SerializerMethodField()
-
     class Meta:
         model = User
-        fields = ('email', 'id', 'username', 'first_name', 'last_name',
-                  'is_subscribed',)
-
-    def get_is_subscribed(self, obj):
-        return subscribed(self, obj)
+        fields = ['email', 'id', 'username', 'first_name', 'last_name',
+                  'is_subscribed']
