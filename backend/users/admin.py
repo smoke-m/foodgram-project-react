@@ -6,8 +6,8 @@ from .models import User
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     list_display = ('pk', 'username', 'email', 'first_name', 'last_name',
-                    'role', 'is_superuser', 'password')
+                    'is_staff', 'is_superuser', 'password')
     list_filter = ('username', 'email')
     search_fields = ('username', 'email')
     empty_value_display = '-пусто-'
-    list_editable = ('role', 'is_superuser')
+    list_editable = ('is_superuser', 'is_staff')
