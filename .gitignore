@@ -133,3 +133,6 @@ dmypy.json
 
 MY_README.md
 .vscode/
+media
+/media
+media/
