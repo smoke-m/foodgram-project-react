@@ -1,8 +1,12 @@
-from rest_framework import viewsets
+from django.shortcuts import get_object_or_404
+from rest_framework import permissions, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
-from .models import Recipe
-from .permissions import AuthorOrAdminOrReadOnly
-from .serializers import CreateRecipeSerializer, RecipeSerializer
+from api.permissions import AuthorOrAdminOrReadOnly
+from .models import Favorite, Recipe
+from .serializers import (CreateRecipeSerializer, FavoritesSerializer,
+                          RecipeSerializer)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -22,3 +26,24 @@ class RecipeViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context()
         context.update({'request': self.request})
         return context
+
+    @action(detail=True, url_path='favorite', methods=('post', 'delete'),
+            permission_classes=(permissions.IsAuthenticated,))
+    def favorite(self, request, pk):
+        """Метод управления избранным."""
+        user = request.user
+        recipe = get_object_or_404(Recipe, id=pk)
+        if request.method == 'POST':
+            if Favorite.objects.filter(user=user, recipe=recipe).exists():
+                return Response({'errors': 'Рецепт уже избранном'},
+                                status=status.HTTP_400_BAD_REQUEST)
+            Favorite.objects.create(user=user, recipe=recipe)
+            serializer = FavoritesSerializer(recipe)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        favorite = Favorite.objects.filter(user=user, recipe=recipe)
+        if favorite.exists():
+            favorite.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({'errors': 'Рецепта нет в избраном'},
+                        status=status.HTTP_400_BAD_REQUEST)

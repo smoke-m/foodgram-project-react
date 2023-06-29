@@ -1,10 +1,10 @@
 from django.conf import settings
 from django.db import models
 
+from api.validators import min_validator
 from ingredients.models import Ingredient
 from tags.models import Tag
 from users.models import User
-from .validators import min_validator
 
 
 class Recipe(models.Model):
@@ -77,3 +77,26 @@ class RecipeTags(models.Model):
 
     def __str__(self):
         return f'У {self.recipe} тег {self.tag}'
+
+
+class Favorite(models.Model):
+    """Модель избранного."""
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='favorites')
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='favorites')
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=('user', 'recipe'),
+                name='unique_favorite_recipe'
+            )
+        ]
+
+    def __str__(self):
+        return f'{self.recipe} у {self.user}'
