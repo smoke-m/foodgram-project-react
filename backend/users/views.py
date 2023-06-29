@@ -51,7 +51,7 @@ class UserViewSet(viewsets.ModelViewSet):
                 return Response({'errors': 'Уже подписаны!'},
                                 status=status.HTTP_400_BAD_REQUEST)
             Follow.objects.create(user=user, author=author).save()
-            serializer = UserSerializer(
+            serializer = FollowSerializer(
                 author, context={'request': request},)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         if change_subscription_status.exists():

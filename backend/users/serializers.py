@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from recipes.models import Recipe
 from .models import Follow, User
 
 
@@ -54,9 +55,26 @@ class PasswordChangeSerializer(serializers.Serializer):
         return value
 
 
+class UserRecipeSerializer(serializers.ModelSerializer):
+    """Сериализатор рецептов для User."""
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
+
+
 class FollowSerializer(UserSerializer):
     """Сериализатор получения подписок."""
+    recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = ['email', 'id', 'username', 'first_name', 'last_name',
-                  'is_subscribed']
+                  'is_subscribed', 'recipes', 'recipes_count']
+
+    def get_recipes_count(self, obj):
+        return obj.recipes.count()
+
+    def get_recipes(self, obj):
+        serializer = UserRecipeSerializer(obj.recipes.all(), many=True)
+        return serializer.data

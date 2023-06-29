@@ -112,10 +112,3 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         tags = validated_data.pop('tags')
         instance.tags.set(tags)
         return super().update(instance, validated_data)
-
-
-class ForUserRecipeSerializer(serializers.ModelSerializer):
-    """Сериализатор рецептов для User."""
-    class Meta:
-        model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time')
