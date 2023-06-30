@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from recipes.models import Recipe
+from api.serializers import MiniRecipeSerializer
 from .models import Follow, User
 
 
@@ -55,13 +55,6 @@ class PasswordChangeSerializer(serializers.Serializer):
         return value
 
 
-class UserRecipeSerializer(serializers.ModelSerializer):
-    """Сериализатор рецептов для User."""
-    class Meta:
-        model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time')
-
-
 class FollowSerializer(UserSerializer):
     """Сериализатор получения подписок."""
     recipes = serializers.SerializerMethodField()
@@ -76,5 +69,5 @@ class FollowSerializer(UserSerializer):
         return obj.recipes.count()
 
     def get_recipes(self, obj):
-        serializer = UserRecipeSerializer(obj.recipes.all(), many=True)
+        serializer = MiniRecipeSerializer(obj.recipes.all(), many=True)
         return serializer.data

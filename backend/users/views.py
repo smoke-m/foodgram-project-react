@@ -1,14 +1,15 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import permissions, status, viewsets
+from rest_framework import permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from api.mixins import CreateListRetrieveMixinsSet
 from .models import Follow, User
 from .serializers import (FollowSerializer, PasswordChangeSerializer,
                           UserCreteSerializer, UserSerializer)
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(CreateListRetrieveMixinsSet):
     """Вьюсет модели User."""
     queryset = User.objects.all()
 
