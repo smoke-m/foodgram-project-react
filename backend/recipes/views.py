@@ -1,6 +1,9 @@
+from io import BytesIO
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -81,9 +84,27 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'ingredient__name',
             'ingredient__measurement_unit'
         ).annotate(sum=Sum('amount'))
-        shopping_list_text = 'Список покупок:\n\n'
+        buffer = BytesIO()
+        pdf = canvas.Canvas(buffer, pagesize=letter)
+        pdf.setFont("Helvetica", 12)
+        y = 700
         for ingredient in shopping_list:
-            shopping_list_text += (
+            text = (
                 f"{ingredient['ingredient__name']}  - {ingredient['sum']}"
                 f"({ingredient['ingredient__measurement_unit']})\n")
-        return HttpResponse(shopping_list_text, content_type="text/plain")
+            pdf.drawString(100, y, text)
+            y -= 20
+        pdf.showPage()
+        pdf.save()
+        buffer.seek(0)
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="shopping.pdf"'
+        response.write(buffer.getvalue())
+        return response
+
+        # shopping_list_text = 'Список покупок:\n\n'
+        # for ingredient in shopping_list:
+        #     shopping_list_text += (
+        #         f"{ingredient['ingredient__name']}  - {ingredient['sum']}"
+        #         f"({ingredient['ingredient__measurement_unit']})\n")
+        # return HttpResponse(shopping_list_text, content_type="text/plain")
