@@ -1,3 +1,5 @@
+from django.db.models import Sum
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
@@ -5,7 +7,7 @@ from rest_framework.response import Response
 
 from api.serializers import MiniRecipeSerializer
 from api.permissions import AuthorOrAdminOrReadOnly
-from .models import Favorite, Recipe, ShoppingCart
+from .models import Favorite, Recipe, RecipeIngredients, ShoppingCart
 from .serializers import CreateRecipeSerializer, RecipeSerializer
 
 
@@ -68,3 +70,20 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response({'errors': 'Рецепта нет в корзине'},
                         status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, url_path='download_shopping_cart', methods=('get',),
+            permission_classes=(permissions.IsAuthenticated,))
+    def download_shopping_cart(self, request):
+        """Метод загрузки списка продуктов."""
+        shopping_list = RecipeIngredients.objects.filter(
+            recipe__shopping_cart__user=request.user
+        ).values(
+            'ingredient__name',
+            'ingredient__measurement_unit'
+        ).annotate(sum=Sum('amount'))
+        shopping_list_text = 'Список покупок:\n\n'
+        for ingredient in shopping_list:
+            shopping_list_text += (
+                f"{ingredient['ingredient__name']}  - {ingredient['sum']}"
+                f"({ingredient['ingredient__measurement_unit']})\n")
+        return HttpResponse(shopping_list_text, content_type="text/plain")
