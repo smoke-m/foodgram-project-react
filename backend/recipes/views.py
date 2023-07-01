@@ -2,12 +2,14 @@ from io import BytesIO
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from api.filters import RecipeFilter
 from api.serializers import MiniRecipeSerializer
 from api.permissions import AuthorOrAdminOrReadOnly
 from .models import Favorite, Recipe, RecipeIngredients, ShoppingCart
@@ -18,6 +20,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     """ViewSet для Recipe."""
     queryset = Recipe.objects.all()
     permission_classes = (AuthorOrAdminOrReadOnly,)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = RecipeFilter
 
     def get_serializer_class(self):
         """Выбор сериализатора. """

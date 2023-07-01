@@ -1,5 +1,6 @@
-from rest_framework import filters
+from django_filters.rest_framework import DjangoFilterBackend
 
+from api.filters import IngredientFilter
 from api.mixins import ListRetrieveMixinsSet
 from .models import Ingredient
 from .serializers import IngredientSerializer
@@ -9,5 +10,6 @@ class IngredientViewSet(ListRetrieveMixinsSet):
     """Вьюсет модели Ingredient."""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['^name']
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = IngredientFilter
+    search_fields = ('^name',)
