@@ -1,7 +1,7 @@
 from rest_framework import mixins, viewsets
 
 
-class CreateListRetrieveMixinsSet(
+class CreateListRetrieveViewSet(
     mixins.ListModelMixin,
     mixins.CreateModelMixin,
     mixins.RetrieveModelMixin,
@@ -11,7 +11,7 @@ class CreateListRetrieveMixinsSet(
     pass
 
 
-class ListRetrieveMixinsSet(
+class ListRetrieveViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet

@@ -8,23 +8,33 @@ from api.validators import validate_username
 
 class User(AbstractUser):
     username = models.CharField(
-        max_length=settings.USERNAME_LENGTH, unique=True,
-        validators=(validate_username, UnicodeUsernameValidator()))
+        max_length=settings.USERNAME_LENGTH,
+        unique=True,
+        validators=(validate_username, UnicodeUsernameValidator()),
+        verbose_name='Никнейм',
+        help_text='Введите никнейм',
+    )
     last_name = models.CharField(
-        max_length=settings.LAST_NAME_LENGTH, blank=True)
+        max_length=settings.LAST_NAME_LENGTH,
+        validators=(validate_username, UnicodeUsernameValidator()),
+        verbose_name='Фамилия',
+        help_text='Введите фамилию',
+    )
     first_name = models.CharField(
-        max_length=settings.FIRST_NAME_LENGTH, blank=True)
-    email = models.EmailField(max_length=settings.EMAIL_LENGTH, unique=True,
-                              blank=False, null=False)
+        max_length=settings.FIRST_NAME_LENGTH,
+        validators=(validate_username, UnicodeUsernameValidator()),
+        verbose_name='Имя',
+        help_text='Введите имя',
+    )
+    email = models.EmailField(
+        max_length=settings.EMAIL_LENGTH,
+        unique=True,
+        verbose_name='email',
+        help_text='Введите email',
+    )
 
     class Meta:
         ordering = ['username']
-        constraints = [
-            models.UniqueConstraint(
-                fields=['username', 'email'],
-                name='unique_username_email',
-            )
-        ]
 
     def __str__(self):
         return f'{self.username} {self.email}'
@@ -36,11 +46,13 @@ class Follow(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='follow',
+        verbose_name='Автор',
     )
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='follower',
+        verbose_name='Подписчик',
     )
 
     class Meta:

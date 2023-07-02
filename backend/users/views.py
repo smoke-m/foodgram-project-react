@@ -3,13 +3,13 @@ from rest_framework import permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from api.mixins import CreateListRetrieveMixinsSet
+from api.mixins import CreateListRetrieveViewSet
 from .models import Follow, User
 from .serializers import (FollowSerializer, PasswordChangeSerializer,
                           UserCreteSerializer, UserSerializer)
 
 
-class UserViewSet(CreateListRetrieveMixinsSet):
+class UserViewSet(CreateListRetrieveViewSet):
     """Вьюсет модели User."""
     queryset = User.objects.all()
 

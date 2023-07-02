@@ -1,8 +1,8 @@
-from api.mixins import ListRetrieveMixinsSet
+from api.mixins import ListRetrieveViewSet
 from .models import Tag
 from .serializers import TagSerializer
 
 
-class TagViewSet(ListRetrieveMixinsSet):
+class TagViewSet(ListRetrieveViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer

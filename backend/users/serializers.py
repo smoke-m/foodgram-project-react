@@ -1,10 +1,10 @@
-from rest_framework import serializers
+from djoser.serializers import UserCreateSerializer, SetPasswordSerializer
 
-from api.serializers import MiniRecipeSerializer
-from .models import Follow, User
+from api.serializers import MiniRecipeSerializer, serializers
+from .models import User
 
 
-class UserCreteSerializer(serializers.ModelSerializer):
+class UserCreteSerializer(UserCreateSerializer):
     """Сериализатор регистрации модели User."""
     password = serializers.CharField(write_only=True)
 
@@ -20,7 +20,7 @@ class UserCreteSerializer(serializers.ModelSerializer):
         return user
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(UserCreateSerializer):
     """Сериализатор модели User."""
     is_subscribed = serializers.SerializerMethodField()
 
@@ -34,10 +34,10 @@ class UserSerializer(serializers.ModelSerializer):
         user = self.context.get('request').user
         if user.is_anonymous:
             return False
-        return Follow.objects.filter(user=user, author=obj.id).exists()
+        return obj.follow.exists()
 
 
-class PasswordChangeSerializer(serializers.Serializer):
+class PasswordChangeSerializer(SetPasswordSerializer):
     """Сериализатор смены пароля."""
     current_password = serializers.CharField(required=True,)
     new_password = serializers.CharField(required=True,)
@@ -69,5 +69,9 @@ class FollowSerializer(UserSerializer):
         return obj.recipes.count()
 
     def get_recipes(self, obj):
-        serializer = MiniRecipeSerializer(obj.recipes.all(), many=True)
-        return serializer.data
+        request = self.context.get('request')
+        recipes = obj.recipes.all()
+        recipes_limit = request.query_params.get('recipes_limit')
+        if recipes_limit:
+            recipes = recipes[:int(recipes_limit)]
+        return MiniRecipeSerializer(recipes, many=True).data
