@@ -53,6 +53,18 @@ class Recipe(models.Model):
         verbose_name='Теги',
         help_text='Выберите Теги',
     )
+    favorited_by = models.ManyToManyField(
+        User,
+        related_name='favorites',
+        verbose_name='Пользователи, добавившие в избранное',
+        blank=True,
+    )
+    shopping_cart = models.ManyToManyField(
+        User,
+        related_name='shopping',
+        verbose_name='Пользователи, добавившие в корзину',
+        blank=True,
+    )
 
     class Meta:
         ordering = ('-pub_date',)
@@ -138,25 +150,25 @@ class BaseModelFavoriteShoppingCart(models.Model):
         return f'{self.recipe} {self.user}'
 
 
-class Favorite(BaseModelFavoriteShoppingCart):
-    """Модель избранного."""
-    class Meta:
-        default_related_name = 'favorites'
-        constraints = [
-            models.UniqueConstraint(
-                fields=('user', 'recipe'),
-                name='unique_favorite_recipe'
-            )
-        ]
+# class Favorite(BaseModelFavoriteShoppingCart):
+#     """Модель избранного."""
+#     class Meta:
+#         default_related_name = 'favorites'
+#         constraints = [
+#             models.UniqueConstraint(
+#                 fields=('user', 'recipe'),
+#                 name='unique_favorite_recipe'
+#             )
+#         ]
 
 
-class ShoppingCart(BaseModelFavoriteShoppingCart):
-    """Модель корзины."""
-    class Meta:
-        default_related_name = 'shopping_cart'
-        constraints = [
-            models.UniqueConstraint(
-                fields=('user', 'recipe'),
-                name='unique_shopping_recipe'
-            )
-        ]
+# class ShoppingCart(BaseModelFavoriteShoppingCart):
+#     """Модель корзины."""
+#     class Meta:
+#         default_related_name = 'shopping_cart'
+#         constraints = [
+#             models.UniqueConstraint(
+#                 fields=('user', 'recipe'),
+#                 name='unique_shopping_recipe'
+#             )
+#         ]
