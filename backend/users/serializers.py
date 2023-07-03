@@ -4,7 +4,7 @@ from api.serializers import MiniRecipeSerializer, serializers
 from .models import User
 
 
-class UserCreteSerializer(UserCreateSerializer):
+class CreteUserSerializer(UserCreateSerializer):
     """Сериализатор регистрации модели User."""
     password = serializers.CharField(write_only=True)
 
@@ -64,6 +64,12 @@ class FollowSerializer(UserSerializer):
         model = User
         fields = ['email', 'id', 'username', 'first_name', 'last_name',
                   'is_subscribed', 'recipes', 'recipes_count']
+        extra_kwargs = {
+            'email': {'required': False},
+            'username': {'required': False},
+            'first_name': {'required': False},
+            'last_name': {'required': False},
+        }
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
@@ -75,3 +81,8 @@ class FollowSerializer(UserSerializer):
         if recipes_limit:
             recipes = recipes[:int(recipes_limit)]
         return MiniRecipeSerializer(recipes, many=True).data
+
+    def validate(self, attrs):
+        if self.context['request'].user == self.instance:
+            raise serializers.ValidationError('Нельзя подписаться на себя!')
+        return attrs
