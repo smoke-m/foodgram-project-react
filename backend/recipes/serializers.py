@@ -9,7 +9,7 @@ from ingredients.models import Ingredient
 from tags.models import Tag
 from tags.serializers import TagSerializer
 from users.serializers import UserSerializer
-from .models import Favorite, Recipe, RecipeIngredients, ShoppingCart
+from .models import Recipe, RecipeIngredients
 
 
 class Base64ImageField(serializers.ImageField):
@@ -57,13 +57,13 @@ class RecipeSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         if user.is_anonymous:
             return False
-        return Favorite.objects.filter(user=user, recipe=obj).exists()
+        return obj.favorited_by.filter(id=user.id).exists()
 
     def get_is_in_shopping_cart(self, obj):
         user = self.context['request'].user
         if user.is_anonymous:
             return False
-        return ShoppingCart.objects.filter(user=user, recipe=obj).exists()
+        return obj.shopping_cart.filter(id=user.id).exists()
 
     class Meta:
         model = Recipe

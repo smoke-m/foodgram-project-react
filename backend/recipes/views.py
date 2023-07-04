@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from api.filters import RecipeFilter
 from api.serializers import MiniRecipeSerializer
 from api.permissions import AuthorOrAdminOrReadOnly
-from .models import Favorite, Recipe, RecipeIngredients, ShoppingCart
+from .models import Recipe, RecipeIngredients
 from .serializers import CreateRecipeSerializer, RecipeSerializer
 
 
@@ -43,16 +43,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
         user = request.user
         recipe = get_object_or_404(Recipe, id=pk)
         if request.method == 'POST':
-            if Favorite.objects.filter(user=user, recipe=recipe).exists():
+            if recipe.favorited_by.filter(id=user.id).exists():
                 return Response({'errors': 'Рецепт уже в избранном'},
                                 status=status.HTTP_400_BAD_REQUEST)
-            Favorite.objects.create(user=user, recipe=recipe)
+            recipe.favorited_by.add(user)
             serializer = MiniRecipeSerializer(recipe)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        favorite = Favorite.objects.filter(user=user, recipe=recipe)
-        if favorite.exists():
-            favorite.delete()
+        if recipe.favorited_by.filter(id=user.id).exists():
+            recipe.favorited_by.remove(user)
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response({'errors': 'Рецепта нет в избраном'},
                         status=status.HTTP_400_BAD_REQUEST)
@@ -64,16 +62,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
         user = request.user
         recipe = get_object_or_404(Recipe, id=pk)
         if request.method == 'POST':
-            if ShoppingCart.objects.filter(user=user, recipe=recipe).exists():
+            if recipe.shopping_cart.filter(id=user.id).exists():
                 return Response({'errors': 'Рецепт уже в корзине'},
                                 status=status.HTTP_400_BAD_REQUEST)
-            ShoppingCart.objects.create(user=user, recipe=recipe)
+            recipe.shopping_cart.add(user)
             serializer = MiniRecipeSerializer(recipe)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        shopping_cart = ShoppingCart.objects.filter(user=user, recipe=recipe)
-        if shopping_cart.exists():
-            shopping_cart.delete()
+        if recipe.shopping_cart.filter(id=user.id).exists():
+            recipe.shopping_cart.remove(user)
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response({'errors': 'Рецепта нет в корзине'},
                         status=status.HTTP_400_BAD_REQUEST)
@@ -83,7 +80,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def download_shopping_cart(self, request):
         """Метод загрузки списка продуктов."""
         shopping_list = RecipeIngredients.objects.filter(
-            recipe__shopping_cart__user=request.user
+            recipe__in=request.user.shopping.all()
         ).values(
             'ingredient__name',
             'ingredient__measurement_unit'
