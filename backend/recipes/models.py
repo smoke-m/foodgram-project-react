@@ -84,7 +84,6 @@ class RecipeIngredients(models.Model):
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
-        related_name='in_recipe',
         verbose_name='Ингредиент',
     )
     amount = models.PositiveSmallIntegerField(
@@ -106,7 +105,11 @@ class RecipeIngredients(models.Model):
 
 
 class RecipeTags(models.Model):
-    """Модель тегов рецептов."""
+    """
+    не удадил, чтобы базу не сносить пока всё не доделаю,
+    на постгришную переходить буду удалю,
+    полностью с комитом согласен.
+    """
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
@@ -128,47 +131,3 @@ class RecipeTags(models.Model):
 
     def __str__(self):
         return f'У {self.recipe} тег {self.tag}'
-
-
-class BaseModelFavoriteShoppingCart(models.Model):
-    """Базовая модель для: Favorite, ShoppingCart."""
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        verbose_name='Пользователь',
-    )
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-        verbose_name='Рецепт',
-    )
-
-    class Meta:
-        abstract = True
-
-    def __str__(self):
-        return f'{self.recipe} {self.user}'
-
-
-# class Favorite(BaseModelFavoriteShoppingCart):
-#     """Модель избранного."""
-#     class Meta:
-#         default_related_name = 'favorites'
-#         constraints = [
-#             models.UniqueConstraint(
-#                 fields=('user', 'recipe'),
-#                 name='unique_favorite_recipe'
-#             )
-#         ]
-
-
-# class ShoppingCart(BaseModelFavoriteShoppingCart):
-#     """Модель корзины."""
-#     class Meta:
-#         default_related_name = 'shopping_cart'
-#         constraints = [
-#             models.UniqueConstraint(
-#                 fields=('user', 'recipe'),
-#                 name='unique_shopping_recipe'
-#             )
-#         ]

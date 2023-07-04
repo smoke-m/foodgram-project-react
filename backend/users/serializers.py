@@ -1,4 +1,4 @@
-from djoser.serializers import UserCreateSerializer, SetPasswordSerializer
+from djoser.serializers import UserCreateSerializer
 
 from api.serializers import MiniRecipeSerializer, serializers
 from .models import User
@@ -35,24 +35,6 @@ class UserSerializer(UserCreateSerializer):
         if user.is_anonymous:
             return False
         return obj.follow.exists()
-
-
-class PasswordChangeSerializer(SetPasswordSerializer):
-    """Сериализатор смены пароля."""
-    current_password = serializers.CharField(required=True,)
-    new_password = serializers.CharField(required=True,)
-
-    def validate_current_password(self, value):
-        user = self.context['request'].user
-        if not user.check_password(value):
-            raise serializers.ValidationError('Не верный пароль.')
-        return value
-
-    def validate_new_password(self, value):
-        if len(value) < 8:
-            raise serializers.ValidationError(
-                'Новый пароль должен содержать не мене 8-ми символов.')
-        return value
 
 
 class FollowSerializer(UserSerializer):

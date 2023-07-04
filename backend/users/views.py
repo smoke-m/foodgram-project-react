@@ -5,13 +5,12 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from .models import Follow, User
-from .serializers import FollowSerializer, UserSerializer
+from .serializers import FollowSerializer
 
 
 class UserViewSet(DjoserUserViewSet):
     """Вьюсет модели User."""
     queryset = User.objects.all()
-    serializer_class = UserSerializer
 
     @action(detail=True, url_path='subscribe', methods=('post', 'delete'),
             permission_classes=(permissions.IsAuthenticated,))

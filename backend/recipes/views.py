@@ -80,7 +80,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def download_shopping_cart(self, request):
         """Метод загрузки списка продуктов."""
         shopping_list = RecipeIngredients.objects.filter(
-            recipe__shopping_cart__user=request.user
+            recipe__in=request.user.shopping.all()
         ).values(
             'ingredient__name',
             'ingredient__measurement_unit'
