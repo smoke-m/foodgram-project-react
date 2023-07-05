@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 
-from api.validators import validate_username
+from api.validators import validate_username, validate_name
 
 
 class User(AbstractUser):
@@ -16,13 +16,13 @@ class User(AbstractUser):
     )
     last_name = models.CharField(
         max_length=settings.LAST_NAME_LENGTH,
-        validators=(validate_username, UnicodeUsernameValidator()),
+        validators=(validate_name,),
         verbose_name='Фамилия',
         help_text='Введите фамилию',
     )
     first_name = models.CharField(
         max_length=settings.FIRST_NAME_LENGTH,
-        validators=(validate_username, UnicodeUsernameValidator()),
+        validators=(validate_name,),
         verbose_name='Имя',
         help_text='Введите имя',
     )
