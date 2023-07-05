@@ -28,6 +28,9 @@ class TagViewSet(ListRetrieveViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
 
+    def get_paginated_response(self, data):
+        return Response(data)
+
 
 class IngredientViewSet(ListRetrieveViewSet):
     """Вьюсет модели Ingredient."""
@@ -36,6 +39,9 @@ class IngredientViewSet(ListRetrieveViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = IngredientFilter
     search_fields = ('^name',)
+
+    def get_paginated_response(self, data):
+        return Response(data)
 
 
 class UserViewSet(DjoserUserViewSet):

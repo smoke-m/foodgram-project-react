@@ -2,7 +2,7 @@ import base64
 
 from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
-from djoser.serializers import UserCreateSerializer
+from djoser.serializers import UserCreateSerializer, SetPasswordSerializer
 from rest_framework import exceptions, serializers
 
 from ingredients.models import Ingredient
@@ -31,6 +31,24 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = ['id', 'name', 'color', 'slug']
+
+
+class PasswordChangeSerializer(SetPasswordSerializer):
+    """Сериализатор смены пароля."""
+    current_password = serializers.CharField(required=True,)
+    new_password = serializers.CharField(required=True,)
+
+    def validate_current_password(self, value):
+        user = self.context['request'].user
+        if not user.check_password(value):
+            raise serializers.ValidationError('Не верный пароль.')
+        return value
+
+    def validate_new_password(self, value):
+        if len(value) < 8:
+            raise serializers.ValidationError(
+                'Новый пароль должен содержать не мене 8-ми символов.')
+        return value
 
 
 class UserSerializer(UserCreateSerializer):
