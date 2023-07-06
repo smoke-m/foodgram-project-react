@@ -1,8 +1,6 @@
-import base64
-
-from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
-from djoser.serializers import UserCreateSerializer, SetPasswordSerializer
+from djoser.serializers import SetPasswordSerializer, UserCreateSerializer
+from drf_extra_fields.fields import Base64ImageField
 from rest_framework import exceptions, serializers
 
 from ingredients.models import Ingredient
@@ -51,7 +49,7 @@ class PasswordChangeSerializer(SetPasswordSerializer):
         return value
 
 
-class UserSerializer(UserCreateSerializer):
+class UserSerializer(serializers.ModelSerializer):
     """Сериализатор модели User."""
     is_subscribed = serializers.SerializerMethodField()
 
@@ -108,23 +106,17 @@ class FollowSerializer(UserSerializer):
         recipes = obj.recipes.all()
         recipes_limit = request.query_params.get('recipes_limit')
         if recipes_limit:
-            recipes = recipes[:int(recipes_limit)]
+            try:
+                recipes_limit = int(recipes_limit)
+                recipes = recipes[:recipes_limit]
+            except ValueError:
+                pass
         return MiniRecipeSerializer(recipes, many=True).data
 
     def validate(self, attrs):
         if self.context['request'].user == self.instance:
             raise serializers.ValidationError('Нельзя подписаться на себя!')
         return attrs
-
-
-class Base64ImageField(serializers.ImageField):
-    """Поле кодирования изображения в base64."""
-    def to_internal_value(self, data):
-        if isinstance(data, str) and data.startswith('data:image'):
-            format, imgstr = data.split(';base64,')
-            ext = format.split('/')[-1]
-            data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
-        return super().to_internal_value(data)
 
 
 class RecipeIngredientsSerializer(serializers.ModelSerializer):
@@ -182,7 +174,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
     ingredients = CreateRecipeIngredientsSerializer(many=True)
     tags = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Tag.objects.all())
-    image = Base64ImageField(use_url=True)
+    image = Base64ImageField(use_url=True, required=False)
 
     class Meta:
         model = Recipe
@@ -209,11 +201,15 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
 
     def create_ingredients(self, ingredients, recipe):
         """Создание ингредиента."""
-        for element in ingredients:
-            ingredient = get_object_or_404(Ingredient, pk=element['id'])
-            RecipeIngredients.objects.create(
-                ingredient=ingredient, recipe=recipe, amount=element['amount']
+        recipe_ingredients = [
+            RecipeIngredients(
+                ingredient=get_object_or_404(Ingredient, pk=element['id']),
+                recipe=recipe,
+                amount=element['amount']
             )
+            for element in ingredients
+        ]
+        RecipeIngredients.objects.bulk_create(recipe_ingredients)
 
     def create(self, validated_data):
         """Создания модели Recipe."""

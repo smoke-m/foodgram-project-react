@@ -2,11 +2,14 @@ from django.conf import settings
 from django.core.validators import RegexValidator
 from django.db import models
 
+from api.validators import validate_name
+
 
 class Tag(models.Model):
     """Модель для  Tag."""
     name = models.CharField(
         max_length=settings.NAME_LENGTH,
+        validators=(validate_name,),
         unique=True,
         verbose_name='Название тэга',
         help_text='Введите название тэга',
@@ -33,12 +36,6 @@ class Tag(models.Model):
 
     class Meta:
         ordering = ['name']
-        constraints = (
-            models.UniqueConstraint(
-                fields=('name', 'color', 'slug'),
-                name='unique_tags',
-            ),
-        )
 
     def __str__(self):
         return self.name
