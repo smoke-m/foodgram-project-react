@@ -40,7 +40,7 @@ class IngredientViewSet(ListRetrieveViewSet):
         return Response(data)
 
 
-class UserViewSet(DjoserUserViewSet):
+class UsersViewSet(DjoserUserViewSet):
     """Вьюсет модели User."""
     queryset = User.objects.all()
 
