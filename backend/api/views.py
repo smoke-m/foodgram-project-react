@@ -11,15 +11,16 @@ from recipes.models import Recipe, RecipeIngredients
 from tags.models import Tag
 from users.models import Follow, User
 from .filters import IngredientFilter, RecipeFilter
-from .mixins import ListRetrieveViewSet
+from .mixins import ListRetrieveMixinsViewSet
 from .permissions import AuthorOrAdminOrReadOnly
 from .serializers import (CreateRecipeSerializer, FollowSerializer,
                           IngredientSerializer, MiniRecipeSerializer,
-                          RecipeSerializer, TagSerializer)
+                          RecipeSerializer, TagSerializer, CreteUserSerializer,
+                          UserSerializer)
 from .utils import shopping_cart_pdf
 
 
-class TagViewSet(ListRetrieveViewSet):
+class TagViewSet(ListRetrieveMixinsViewSet):
     """ViewSet для Tag."""
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
@@ -28,7 +29,7 @@ class TagViewSet(ListRetrieveViewSet):
         return Response(data)
 
 
-class IngredientViewSet(ListRetrieveViewSet):
+class IngredientViewSet(ListRetrieveMixinsViewSet):
     """Вьюсет модели Ingredient."""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
@@ -40,16 +41,21 @@ class IngredientViewSet(ListRetrieveViewSet):
         return Response(data)
 
 
-class UsersViewSet(DjoserUserViewSet):
+class UsersViewSet(viewsets.ModelViewSet):
     """Вьюсет модели User."""
     queryset = User.objects.all()
 
+    def get_serializer_class(self):
+        if self.action in ('create',):
+            return CreteUserSerializer
+        return UserSerializer
+
     @action(detail=True, url_path='subscribe', methods=('post', 'delete'),
             permission_classes=(permissions.IsAuthenticated,))
-    def subscribe(self, request, id):
+    def subscribe(self, request, pk):
         """Метод создания и удаления 'subscribe'."""
         user = request.user
-        author = get_object_or_404(User, id=id)
+        author = get_object_or_404(User, id=pk)
         change_subscription_status = Follow.objects.filter(
             user=user.id, author=author.id)
         if request.method == 'POST':
