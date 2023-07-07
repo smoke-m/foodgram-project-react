@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from djoser.serializers import SetPasswordSerializer, UserCreateSerializer
+from djoser.serializers import UserCreateSerializer
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import exceptions, serializers
 
@@ -31,24 +31,6 @@ class TagSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'color', 'slug']
 
 
-class PasswordChangeSerializer(SetPasswordSerializer):
-    """Сериализатор смены пароля."""
-    current_password = serializers.CharField(required=True,)
-    new_password = serializers.CharField(required=True,)
-
-    def validate_current_password(self, value):
-        user = self.context['request'].user
-        if not user.check_password(value):
-            raise serializers.ValidationError('Не верный пароль.')
-        return value
-
-    def validate_new_password(self, value):
-        if len(value) < 8:
-            raise serializers.ValidationError(
-                'Новый пароль должен содержать не мене 8-ми символов.')
-        return value
-
-
 class UserSerializer(serializers.ModelSerializer):
     """Сериализатор модели User."""
     is_subscribed = serializers.SerializerMethodField()
@@ -61,25 +43,18 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_is_subscribed(self, obj):
         user = self.context.get('request').user
-        if user.is_anonymous:
+        if user.is_anonymous or user == obj:
             return False
         return obj.follow.exists()
 
 
 class CreteUserSerializer(UserCreateSerializer):
     """Сериализатор регистрации модели User."""
-    password = serializers.CharField(write_only=True)
-
     class Meta:
         model = User
         fields = ['id', 'username', 'last_name', 'first_name', 'email',
                   'password']
         read_only_fields = ['id']
-
-    def create(self, validated_data):
-        password = validated_data.pop('password')
-        user = User.objects.create_user(password=password, **validated_data)
-        return user
 
 
 class FollowSerializer(UserSerializer):
@@ -91,12 +66,6 @@ class FollowSerializer(UserSerializer):
         model = User
         fields = ['email', 'id', 'username', 'first_name', 'last_name',
                   'is_subscribed', 'recipes', 'recipes_count']
-        extra_kwargs = {
-            'email': {'required': False},
-            'username': {'required': False},
-            'first_name': {'required': False},
-            'last_name': {'required': False},
-        }
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
@@ -112,11 +81,6 @@ class FollowSerializer(UserSerializer):
             except ValueError:
                 pass
         return MiniRecipeSerializer(recipes, many=True).data
-
-    def validate(self, attrs):
-        if self.context['request'].user == self.instance:
-            raise serializers.ValidationError('Нельзя подписаться на себя!')
-        return attrs
 
 
 class RecipeIngredientsSerializer(serializers.ModelSerializer):
