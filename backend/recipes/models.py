@@ -18,13 +18,6 @@ class Recipe(models.Model):
         verbose_name='Описание рецепта',
         help_text='Ведите описание рецепта',
     )
-    ingredients = models.ManyToManyField(
-        Ingredient,
-        through='RecipeIngredients',
-        related_name='recipes',
-        verbose_name='Ингредиенты',
-        help_text='Выберите ингредиенты',
-    )
     cooking_time = models.PositiveSmallIntegerField(
         validators=min_validator(),
         verbose_name='Время приготовления',
@@ -48,14 +41,12 @@ class Recipe(models.Model):
     )
     tags = models.ManyToManyField(
         Tag,
-        through='RecipeTags',
         related_name='recipes',
         verbose_name='Теги',
         help_text='Выберите Теги',
     )
     favorited_by = models.ManyToManyField(
         User,
-        related_name='favorites',
         verbose_name='Пользователи, добавившие в избранное',
         blank=True,
     )
@@ -103,32 +94,3 @@ class RecipeIngredients(models.Model):
 
     def __str__(self):
         return f'В {self.recipe} есть {self.ingredient}'
-
-
-class RecipeTags(models.Model):
-    """
-    не удадил, чтобы базу не сносить пока всё не доделаю,
-    на постгришную переходить буду удалю,
-    полностью с комитом согласен.
-    """
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-        verbose_name='Рецепт',
-    )
-    tag = models.ForeignKey(
-        Tag,
-        on_delete=models.CASCADE,
-        verbose_name='Теги',
-    )
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=('recipe', 'tag'),
-                name='unique_recipe_in_tag'
-            )
-        ]
-
-    def __str__(self):
-        return f'У {self.recipe} тег {self.tag}'
