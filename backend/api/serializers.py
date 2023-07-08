@@ -45,7 +45,7 @@ class UserSerializer(serializers.ModelSerializer):
         user = self.context.get('request').user
         if user.is_anonymous or user == obj:
             return False
-        return obj.follow.exists()
+        return user.follower.filter(author=obj).exists()
 
 
 class CreteUserSerializer(UserCreateSerializer):

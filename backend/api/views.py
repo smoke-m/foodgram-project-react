@@ -2,6 +2,7 @@ from django.db import IntegrityError
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from djoser.views import UserViewSet
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -40,16 +41,16 @@ class IngredientViewSet(ListRetrieveMixinsViewSet):
         return Response(data)
 
 
-class UsersViewSet(viewsets.ModelViewSet):
+class UsersViewSet(UserViewSet):
     """Вьюсет модели User."""
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
     @action(detail=True, url_path='subscribe', methods=('post', 'delete'),
             permission_classes=(permissions.IsAuthenticated,))
-    def subscribe(self, request, pk):
+    def subscribe(self, request, id):
         """Метод создания и удаления 'subscribe'."""
-        author = get_object_or_404(User, id=pk)
+        author = get_object_or_404(User, id=id)
         try:
             if request.method == 'POST':
                 Follow.objects.create(user=request.user, author=author).save()
