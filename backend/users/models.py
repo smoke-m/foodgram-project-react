@@ -33,6 +33,9 @@ class User(AbstractUser):
         help_text='Введите email',
     )
 
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+
     class Meta:
         ordering = ['username']
 

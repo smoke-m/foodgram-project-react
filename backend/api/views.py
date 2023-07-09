@@ -2,55 +2,49 @@ from django.db import IntegrityError
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from djoser.views import UserViewSet
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.pagination import LimitOffsetPagination
 
+from .filters import IngredientFilter, RecipeFilter
+from .mixins import ViewListRetrieveMixinsSet
+from .permissions import AuthorOrAdminOrReadOnly
+from .serializers import (CreateRecipeSerializer, FollowSerializer,
+                          IngredientSerializer, MiniRecipeSerializer,
+                          RecipeSerializer, TagSerializer)
+from .utils import shopping_cart_pdf
 from ingredients.models import Ingredient
 from recipes.models import Recipe, RecipeIngredients
 from tags.models import Tag
 from users.models import Follow, User
-from .filters import IngredientFilter, RecipeFilter
-from .mixins import ListRetrieveMixinsViewSet
-from .permissions import AuthorOrAdminOrReadOnly
-from .serializers import (CreateRecipeSerializer, FollowSerializer,
-                          IngredientSerializer, MiniRecipeSerializer,
-                          RecipeSerializer, TagSerializer, UserSerializer)
-from .utils import shopping_cart_pdf
 
 
-class TagViewSet(ListRetrieveMixinsViewSet):
+class TagViewSet(ViewListRetrieveMixinsSet):
     """ViewSet для Tag."""
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-
-    def get_paginated_response(self, data):
-        return Response(data)
+    pagination_class = None
 
 
-class IngredientViewSet(ListRetrieveMixinsViewSet):
+class IngredientViewSet(ViewListRetrieveMixinsSet):
     """Вьюсет модели Ingredient."""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
+    pagination_class = None
     filter_backends = (DjangoFilterBackend,)
     filterset_class = IngredientFilter
     search_fields = ('^name',)
 
-    def get_paginated_response(self, data):
-        return Response(data)
 
-
-class UsersViewSet(UserViewSet):
+class UsersViewSet(viewsets.ViewSet):
     """Вьюсет модели User."""
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
 
     @action(detail=True, url_path='subscribe', methods=('post', 'delete'),
             permission_classes=(permissions.IsAuthenticated,))
-    def subscribe(self, request, id):
+    def subscribe(self, request, pk):
         """Метод создания и удаления 'subscribe'."""
-        author = get_object_or_404(User, id=id)
+        author = get_object_or_404(User, id=pk)
         try:
             if request.method == 'POST':
                 Follow.objects.create(user=request.user, author=author).save()
@@ -69,12 +63,13 @@ class UsersViewSet(UserViewSet):
     def subscriptions(self, request):
         """Метод получения списка 'subscriptions'."""
         queryset = User.objects.filter(follow__user=self.request.user).all()
+        paginator = LimitOffsetPagination()
         if queryset:
-            queryset_pag = self.paginate_queryset(queryset)
+            page = paginator.paginate_queryset(queryset, request)
             serializer = FollowSerializer(
-                queryset_pag, context={'request': request}, many=True,)
-            return self.get_paginated_response(serializer.data)
-        return queryset
+                page, context={'request': request}, many=True,)
+            return paginator.get_paginated_response(serializer.data)
+        return Response([])
 
 
 class RecipeViewSet(viewsets.ModelViewSet):

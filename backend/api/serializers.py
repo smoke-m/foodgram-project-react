@@ -1,13 +1,13 @@
 from django.shortcuts import get_object_or_404
-from djoser.serializers import UserCreateSerializer
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import exceptions, serializers
+from rest_framework.response import Response
 
+from .validators import min_validator
 from ingredients.models import Ingredient
 from recipes.models import Recipe, RecipeIngredients
 from tags.models import Tag
 from users.models import User
-from .validators import min_validator
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -48,15 +48,6 @@ class UserSerializer(serializers.ModelSerializer):
         return user.follower.filter(author=obj).exists()
 
 
-class CreteUserSerializer(UserCreateSerializer):
-    """Сериализатор регистрации модели User."""
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'last_name', 'first_name', 'email',
-                  'password']
-        read_only_fields = ['id']
-
-
 class FollowSerializer(UserSerializer):
     """Сериализатор получения подписок."""
     recipes = serializers.SerializerMethodField()
@@ -78,8 +69,8 @@ class FollowSerializer(UserSerializer):
             try:
                 recipes_limit = int(recipes_limit)
                 recipes = recipes[:recipes_limit]
-            except ValueError:
-                pass
+            except ValueError as error:
+                return Response({'errors': f'{error}'},)
         return MiniRecipeSerializer(recipes, many=True).data
 
 
