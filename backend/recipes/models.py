@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.db import models
 
-from api.validators import min_validator
+from api.validators import min_validator, validate_name
 from ingredients.models import Ingredient
 from tags.models import Tag
 from users.models import User
@@ -11,6 +11,7 @@ class Recipe(models.Model):
     """Модель рецепта."""
     name = models.CharField(
         max_length=settings.NAME_LENGTH,
+        validators=(validate_name,),
         verbose_name='Название рецепта',
         help_text='Ведите название рецепта',
     )

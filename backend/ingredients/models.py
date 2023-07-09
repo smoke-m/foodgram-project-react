@@ -1,11 +1,14 @@
 from django.conf import settings
 from django.db import models
 
+from api.validators import validate_name
+
 
 class Ingredient(models.Model):
     """Модель для  Ingredient."""
     name = models.CharField(
         max_length=settings.NAME_LENGTH,
+        validators=(validate_name,),
         unique=True,
         verbose_name='Имя ингредиента',
         help_text='Укажите имя ингредиента',
