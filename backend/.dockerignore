@@ -1,3 +1,11 @@
+# .dockerignore
+venv
+.git
+db.sqlite3
+.idea
+.vscode
+.env
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -128,30 +136,4 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# .idea
-.idea
-
-MY_README.md
-.vscode/
-media
-/media
-media/
-test.py
-
-# Папки, создаваемые средой разработки
-.idea
-.DS_Store
-.AppleDouble
-.LSOverride
-
-*.sublime-project
-*.sublime-workspace
-
-.vscode/
-*.code-workspace
-
-# Others
-node_modules
 /node_modules
-Dockerfile.bak
-db.sqlite3.bak
