@@ -88,11 +88,14 @@ class RecipeIngredients(models.Model):
 
 class BaseModelFavoriteShoppingCart(models.Model):
     """Базовая модель для: Favorite, ShoppingCart."""
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='+',
+    )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='+',
     )
 
     class Meta:

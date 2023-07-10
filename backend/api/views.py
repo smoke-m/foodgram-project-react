@@ -6,7 +6,6 @@ from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
-from pprint import pprint
 
 from .filters import IngredientFilter, RecipeFilter
 from .mixins import ViewListRetrieveMixinsSet
@@ -123,11 +122,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             permission_classes=(permissions.IsAuthenticated,))
     def download_shopping_cart(self, request):
         """Метод загрузки списка продуктов."""
-        shopping_cart = request.user.shopping_cart.all()
-        print(dir(shopping_cart))
-        recipes = shopping_cart.recipe
         shopping_list = RecipeIngredients.objects.filter(
-            recipe__in=recipes
+            recipe__shopping_cart__user=request.user
         ).values(
             'ingredient__name',
             'ingredient__measurement_unit'
