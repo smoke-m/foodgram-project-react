@@ -3,19 +3,20 @@ from django.contrib import admin
 from .models import Recipe
 
 
-# class RecipeIngredientsInLine(admin.TabularInline):
-#     model = Recipe.ingredients.through
-#     extra = 1
-
-
-# class RecipeTagsInLine(admin.TabularInline):
-#     model = Recipe.tags.through
-#     extra = 1
-
-
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'text', 'cooking_time',
-                    'image', 'pub_date', 'author')
-    search_fields = ('name', 'author')
-    # inlines = (RecipeIngredientsInLine, RecipeTagsInLine)
+    list_display = ('id', 'name', 'text', 'pub_date', 'author',
+                    'get_favorites', 'get_shopping_cart')
+    search_fields = ('name', 'author', 'tags')
+
+    def get_favorites(self, obj):
+        """Количество добавлений рецепта в избранное."""
+        return obj.favorites.count()
+
+    get_favorites.short_description = ('Рецепт в избранных.')
+
+    def get_shopping_cart(self, obj):
+        """Количество добавлений рецепта в корзины."""
+        return obj.shopping_cart.count()
+
+    get_shopping_cart.short_description = ('Рецепт в корзинах.')
