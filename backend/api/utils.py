@@ -3,6 +3,10 @@ from io import BytesIO
 from django.http import HttpResponse
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+from rest_framework import status
+from rest_framework.response import Response
+
+from .serializers import MiniRecipeSerializer
 
 
 def shopping_cart_pdf(shopping_list):
@@ -24,3 +28,16 @@ def shopping_cart_pdf(shopping_list):
     response['Content-Disposition'] = 'attachment; filename="shopping.pdf"'
     response.write(buffer.getvalue())
     return response
+
+
+def def_favorite_shopping(request, recipe, model):
+    """Функция логики favorite, shopping_cart."""
+    if request.method == 'POST':
+        if model.filter(user=request.user, recipe=recipe).exists():
+            return Response({'errors': 'Рецепт уже добавлен'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        model.create(user=request.user, recipe=recipe).save()
+        serializer = MiniRecipeSerializer(recipe)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    model.filter(user=request.user, recipe=recipe).delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)

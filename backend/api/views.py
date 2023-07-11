@@ -11,9 +11,9 @@ from .filters import IngredientFilter, RecipeFilter
 from .mixins import ViewListRetrieveMixinsSet
 from .permissions import AuthorOrAdminOrReadOnly
 from .serializers import (CreateRecipeSerializer, FollowSerializer,
-                          IngredientSerializer, MiniRecipeSerializer,
-                          RecipeSerializer, TagSerializer)
-from .utils import shopping_cart_pdf
+                          IngredientSerializer, RecipeSerializer,
+                          TagSerializer)
+from .utils import def_favorite_shopping, shopping_cart_pdf
 from ingredients.models import Ingredient
 from recipes.models import Favorite, Recipe, RecipeIngredients, ShoppingCart
 from tags.models import Tag
@@ -37,9 +37,8 @@ class IngredientViewSet(ViewListRetrieveMixinsSet):
     search_fields = ('^name',)
 
 
-class UsersViewSet(viewsets.ViewSet):
+class UsersViewSet(viewsets.GenericViewSet):
     """Вьюсет модели User."""
-
     @action(detail=True, url_path='subscribe', methods=('post', 'delete'),
             permission_classes=(permissions.IsAuthenticated,))
     def subscribe(self, request, pk):
@@ -64,12 +63,10 @@ class UsersViewSet(viewsets.ViewSet):
         """Метод получения списка 'subscriptions'."""
         queryset = User.objects.filter(follow__user=self.request.user).all()
         paginator = LimitOffsetPagination()
-        if queryset:
-            page = paginator.paginate_queryset(queryset, request)
-            serializer = FollowSerializer(
-                page, context={'request': request}, many=True,)
-            return paginator.get_paginated_response(serializer.data)
-        return Response([])
+        page = paginator.paginate_queryset(queryset, request)
+        serializer = FollowSerializer(
+            page, context={'request': request}, many=True,)
+        return paginator.get_paginated_response(serializer.data)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -90,33 +87,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
             permission_classes=(permissions.IsAuthenticated,))
     def favorite(self, request, pk):
         """Метод управления избранным."""
-        user = request.user
-        recipe = get_object_or_404(Recipe, id=pk)
-        if request.method == 'POST':
-            if Favorite.objects.filter(user=user, recipe=recipe).exists():
-                return Response({'errors': 'Рецепт уже в избранном'},
-                                status=status.HTTP_400_BAD_REQUEST)
-            Favorite.objects.create(user=user, recipe=recipe).save()
-            serializer = MiniRecipeSerializer(recipe)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        Favorite.objects.filter(user=user, recipe=recipe).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return def_favorite_shopping(
+            request, get_object_or_404(Recipe, id=pk), Favorite.objects,
+        )
 
     @action(detail=True, url_path='shopping_cart', methods=('post', 'delete'),
             permission_classes=(permissions.IsAuthenticated,))
     def shopping_cart(self, request, pk):
         """Метод управления корзиной."""
-        user = request.user
-        recipe = get_object_or_404(Recipe, id=pk)
-        if request.method == 'POST':
-            if ShoppingCart.objects.filter(user=user, recipe=recipe).exists():
-                return Response({'errors': 'Рецепт уже в корзине'},
-                                status=status.HTTP_400_BAD_REQUEST)
-            ShoppingCart.objects.create(user=user, recipe=recipe).save()
-            serializer = MiniRecipeSerializer(recipe)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        ShoppingCart.objects.filter(user=user, recipe=recipe).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return def_favorite_shopping(
+            request, get_object_or_404(Recipe, id=pk), ShoppingCart.objects,
+        )
 
     @action(detail=False, url_path='download_shopping_cart', methods=('get',),
             permission_classes=(permissions.IsAuthenticated,))
