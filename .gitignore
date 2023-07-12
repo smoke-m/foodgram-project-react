@@ -140,7 +140,6 @@ test.py
 
 # Папки, создаваемые средой разработки
 .idea
-.DS_Store
 .AppleDouble
 .LSOverride
 
