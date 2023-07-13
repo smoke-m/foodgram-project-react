@@ -129,6 +129,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+CSV_FILES_DIR = os.path.join(BASE_DIR, 'data')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
@@ -163,7 +165,7 @@ EMAIL_LENGTH = 128
 FIRST_NAME_LENGTH = 128
 LAST_NAME_LENGTH = 128
 MEASURE_LENGTH = 10
-NAME_LENGTH = 32
+NAME_LENGTH = 64
 ROLE_LENGTH = 13
 SLAG_LENGTH = 32
 USERNAME_LENGTH = 128

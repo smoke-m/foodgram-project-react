@@ -14,7 +14,7 @@ def validate_username(value):
 
 
 def validate_name(value):
-    regex = r'^[A-Za-z0-9А-Яа-я\s]+$'
+    regex = r'^[A-Za-z0-9А-Яа-я\s()]+$'
     error_message = 'Разрешены только буквы, цифры и пробел.'
     validator = RegexValidator(regex=regex, message=error_message)
     validator(value)
