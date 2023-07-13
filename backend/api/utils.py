@@ -14,7 +14,8 @@ from .serializers import MiniRecipeSerializer
 def shopping_cart_pdf(shopping_list):
     """Создание pdf файла."""
     buffer = BytesIO()
-    pdfmetrics.registerFont(TTFont('Arial', 'Arial.ttf'))
+    font_path = ('fonts/arial.ttf')
+    pdfmetrics.registerFont(TTFont('Arial', font_path))
     pdf = canvas.Canvas(buffer, pagesize=letter)
     pdf.setFont('Arial', 20)
     y = 700
