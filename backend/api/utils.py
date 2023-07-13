@@ -2,8 +2,8 @@ from io import BytesIO
 
 from django.http import HttpResponse
 from reportlab.lib.pagesizes import letter
-# from reportlab.pdfbase import pdfmetrics
-# from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 from rest_framework import status
 from rest_framework.response import Response
@@ -14,9 +14,10 @@ from .serializers import MiniRecipeSerializer
 def shopping_cart_pdf(shopping_list):
     """Создание pdf файла."""
     buffer = BytesIO()
-    # pdfmetrics.registerFont(TTFont('Arial', 'Arial.ttf')) v3
+    font_path = ('fonts/arial.ttf')
+    pdfmetrics.registerFont(TTFont('Arial', font_path))
     pdf = canvas.Canvas(buffer, pagesize=letter)
-    pdf.setFont('Helvetica-Bold', 20)
+    pdf.setFont('Arial', 20)
     y = 700
     for ingredient in shopping_list:
         text = (

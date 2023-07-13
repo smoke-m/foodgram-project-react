@@ -1,6 +1,5 @@
 from django.db import IntegrityError
 from django.db.models import Sum
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions, status, viewsets
@@ -14,7 +13,7 @@ from .permissions import AuthorOrAdminOrReadOnly
 from .serializers import (CreateRecipeSerializer, FollowSerializer,
                           IngredientSerializer, RecipeSerializer,
                           TagSerializer)
-from .utils import shopping_cart_pdf, def_favorite_shopping
+from .utils import def_favorite_shopping, shopping_cart_pdf
 from ingredients.models import Ingredient
 from recipes.models import Favorite, Recipe, RecipeIngredients, ShoppingCart
 from tags.models import Tag
@@ -111,9 +110,3 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'ingredient__measurement_unit'
         ).annotate(sum=Sum('amount'))
         return shopping_cart_pdf(shopping_list)
-        # shopping_list_text = 'Список покупок:\n\n'
-        # for ingredient in shopping_list:
-        #     shopping_list_text += (
-        #         f"{ingredient['ingredient__name']}  - {ingredient['sum']}"
-        #         f"({ingredient['ingredient__measurement_unit']})\n")
-        # return HttpResponse(shopping_list_text, content_type="text/plain")
