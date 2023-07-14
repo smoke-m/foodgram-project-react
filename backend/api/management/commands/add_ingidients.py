@@ -25,4 +25,4 @@ class Command(BaseCommand):
             ]
             Ingredient.objects.bulk_create(ingredients)
         print('Ингредиенты загружены')
-        print('ADD', Ingredient.objects.count(), 'Ingredient')
+        print('Добавленно:', Ingredient.objects.count(), 'Ингредиентов')

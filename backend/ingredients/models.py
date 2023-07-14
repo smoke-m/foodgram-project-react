@@ -25,7 +25,7 @@ class Ingredient(models.Model):
         constraints = (
             models.UniqueConstraint(
                 fields=('name', 'measurement_unit'),
-                name='unique_ingredient',
+                name='уникальность_ингредиента_измерение.',
             ),
         )
 

@@ -154,3 +154,4 @@ node_modules
 /node_modules
 Dockerfile.bak
 db.sqlite3.bak
+.DS_Store

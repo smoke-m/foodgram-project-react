@@ -26,7 +26,6 @@ class Recipe(models.Model):
     )
     image = models.ImageField(
         upload_to='recipes/',
-        blank=True,
         verbose_name='Фотография рецепта',
         help_text='Выберите фотографию рецепта',
     )
@@ -78,7 +77,7 @@ class RecipeIngredients(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=('recipe', 'ingredient'),
-                name='unique_ingredients_in_recipe'
+                name='уникальность_ингредиента_в_рецепте'
             )
         ]
 
@@ -112,7 +111,7 @@ class Favorite(BaseModelFavoriteShoppingCart):
         constraints = [
             models.UniqueConstraint(
                 fields=('user', 'recipe'),
-                name='unique_favorite_recipe'
+                name='уникальность_рецепта_в_избранном'
             )
         ]
 
@@ -124,6 +123,6 @@ class ShoppingCart(BaseModelFavoriteShoppingCart):
         constraints = [
             models.UniqueConstraint(
                 fields=('user', 'recipe'),
-                name='unique_shopping_recipe'
+                name='уникальность_рецепта_в_корзине'
             )
         ]

@@ -29,8 +29,8 @@ class User(AbstractUser):
     email = models.EmailField(
         max_length=settings.EMAIL_LENGTH,
         unique=True,
-        verbose_name='email',
-        help_text='Введите email',
+        verbose_name='электронная почта',
+        help_text='Введите электронную почту',
     )
 
     USERNAME_FIELD = 'email'
@@ -62,11 +62,11 @@ class Follow(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'author'],
-                name='unique_follow'
+                name='уникальность_подписки'
             ),
             models.CheckConstraint(
                 check=~models.Q(user=models.F('author')),
-                name='prevent_self_follow',
+                name='защита_подписки_на_себя',
             ),
         ]
 
