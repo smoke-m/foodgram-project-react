@@ -7,6 +7,7 @@ class RecipeIngredientsAdmin(admin.StackedInline):
     """Модель ингредиентов в рецепте."""
     model = RecipeIngredients
     autocomplete_fields = ('ingredient',)
+    min_num = 1
 
 
 @admin.register(Recipe)
