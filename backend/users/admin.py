@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import admin
 
 from .models import User
@@ -9,6 +10,6 @@ class UserAdmin(admin.ModelAdmin):
                     'is_staff', 'is_superuser', 'password')
     list_filter = ('username', 'email')
     search_fields = ('username', 'email')
-    empty_value_display = '-пусто-'
+    empty_value_display = settings.EMPTY_VALUE
     list_editable = ('username', 'email', 'first_name', 'last_name',
                      'is_superuser', 'is_staff')
