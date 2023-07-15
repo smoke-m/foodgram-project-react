@@ -21,6 +21,7 @@ class Ingredient(models.Model):
 
     class Meta:
         ordering = ['name']
+        verbose_name = 'Ингредиенты'
         verbose_name_plural = 'Ингредиенты'
         constraints = (
             models.UniqueConstraint(

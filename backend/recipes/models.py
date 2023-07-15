@@ -48,6 +48,8 @@ class Recipe(models.Model):
 
     class Meta:
         ordering = ('-pub_date',)
+        verbose_name = 'Рецепты'
+        verbose_name_plural = 'Рецепты'
 
     def __str__(self):
         return self.name
@@ -66,6 +68,7 @@ class RecipeIngredients(models.Model):
         on_delete=models.CASCADE,
         related_name='+',
         verbose_name='Ингредиент',
+        help_text='Выберите из списка',
     )
     amount = models.PositiveSmallIntegerField(
         validators=min_validator(),
@@ -74,6 +77,8 @@ class RecipeIngredients(models.Model):
     )
 
     class Meta:
+        verbose_name = 'Ингредиенты в рецете'
+        verbose_name_plural = 'Ингредиенты в рецепте'
         constraints = [
             models.UniqueConstraint(
                 fields=('recipe', 'ingredient'),
@@ -108,6 +113,8 @@ class Favorite(BaseModelFavoriteShoppingCart):
     """Модель избранного."""
     class Meta:
         default_related_name = 'favorites'
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранное'
         constraints = [
             models.UniqueConstraint(
                 fields=('user', 'recipe'),
@@ -120,6 +127,8 @@ class ShoppingCart(BaseModelFavoriteShoppingCart):
     """Модель корзины."""
     class Meta:
         default_related_name = 'shopping_cart'
+        verbose_name = 'Корзина'
+        verbose_name_plural = 'Корзина'
         constraints = [
             models.UniqueConstraint(
                 fields=('user', 'recipe'),

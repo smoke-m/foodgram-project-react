@@ -35,6 +35,8 @@ class Tag(models.Model):
     )
 
     class Meta:
+        verbose_name = 'Таги'
+        verbose_name_plural = 'Таги'
         ordering = ['name']
 
     def __str__(self):

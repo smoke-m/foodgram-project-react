@@ -38,6 +38,8 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
     class Meta:
+        verbose_name = 'Пользователи'
+        verbose_name_plural = 'Пользователи'
         ordering = ['username']
 
     def __str__(self):
@@ -60,6 +62,8 @@ class Follow(models.Model):
     )
 
     class Meta:
+        verbose_name = 'Подписки'
+        verbose_name_plural = 'Подписки'
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'author'],
