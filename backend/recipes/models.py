@@ -86,7 +86,7 @@ class RecipeIngredients(models.Model):
 
 
 class BaseModelFavoriteShoppingCart(models.Model):
-    """Базовая модель для: Favorite, ShoppingCart."""
+    """Базовая модель для: избранного и корзины."""
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

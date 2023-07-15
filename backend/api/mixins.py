@@ -6,5 +6,5 @@ class ViewListRetrieveMixinsSet(
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
-    """Сет миксинов List, Retrieve."""
+    """Сет миксинов просмотра."""
     pass

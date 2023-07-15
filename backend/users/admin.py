@@ -6,6 +6,7 @@ from .models import User
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
+    """Админ зона пользователя."""
     list_display = ('pk', 'username', 'email', 'first_name', 'last_name',
                     'is_staff', 'is_superuser', 'password')
     list_filter = ('username', 'email')

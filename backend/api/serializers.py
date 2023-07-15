@@ -11,28 +11,28 @@ from users.models import User
 
 
 class IngredientSerializer(serializers.ModelSerializer):
-    """Сериализатор модели Ingredient."""
+    """Сериализатор ингредиентов."""
     class Meta:
         model = Ingredient
         fields = ['id', 'name', 'measurement_unit']
 
 
 class MiniRecipeSerializer(serializers.ModelSerializer):
-    """Сериализатор избранного Recipe."""
+    """Сериализатор избранного рецептов."""
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
 
 
 class TagSerializer(serializers.ModelSerializer):
-    """Сериализатор модели Tag."""
+    """Сериализатор таг."""
     class Meta:
         model = Tag
         fields = ['id', 'name', 'color', 'slug']
 
 
 class UserSerializer(serializers.ModelSerializer):
-    """Сериализатор модели User."""
+    """Сериализатор пользователя."""
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
@@ -145,7 +145,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         return serializer.data
 
     def validate_ingredients(self, data):
-        """Валидация ингредиентов"""
+        """Валидация ингредиентов."""
         ingredients = self.initial_data.get('ingredients')
         lst_ingredient = []
         for ingredient in ingredients:
@@ -167,7 +167,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         RecipeIngredients.objects.bulk_create(recipe_ingredients)
 
     def create(self, validated_data):
-        """Создания модели Recipe."""
+        """Создания рецепта."""
         author = self.context.get('request').user
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
@@ -177,7 +177,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         return recipe
 
     def update(self, instance, validated_data):
-        """Обновление модели Recipe."""
+        """Обновление рецепта."""
         RecipeIngredients.objects.filter(recipe=instance).delete()
         self.create_ingredients(validated_data.pop('ingredients'), instance)
         tags = validated_data.pop('tags')

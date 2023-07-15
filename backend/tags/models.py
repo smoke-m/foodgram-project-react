@@ -6,13 +6,13 @@ from api.validators import validate_name
 
 
 class Tag(models.Model):
-    """Модель для  Tag."""
+    """Модель таг."""
     name = models.CharField(
         max_length=settings.NAME_LENGTH,
         validators=(validate_name,),
         unique=True,
-        verbose_name='Название тэга',
-        help_text='Введите название тэга',
+        verbose_name='Название тага',
+        help_text='Введите название тага',
     )
     slug = models.SlugField(
         max_length=settings.SLAG_LENGTH,

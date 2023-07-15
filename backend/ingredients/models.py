@@ -5,7 +5,7 @@ from api.validators import validate_name
 
 
 class Ingredient(models.Model):
-    """Модель для  Ingredient."""
+    """Модель ингредиента."""
     name = models.CharField(
         max_length=settings.NAME_LENGTH,
         validators=(validate_name,),

@@ -7,6 +7,7 @@ from api.validators import validate_name, validate_username
 
 
 class User(AbstractUser):
+    """Модель поьзователя."""
     username = models.CharField(
         max_length=settings.USERNAME_LENGTH,
         unique=True,
@@ -44,7 +45,7 @@ class User(AbstractUser):
 
 
 class Follow(models.Model):
-    """ Модель для создания подписок на автора."""
+    """Модель для создания подписок на автора."""
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

@@ -21,14 +21,14 @@ from users.models import Follow, User
 
 
 class TagViewSet(ViewListRetrieveMixinsSet):
-    """ViewSet для Tag."""
+    """ViewSet для таг."""
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     pagination_class = None
 
 
 class IngredientViewSet(ViewListRetrieveMixinsSet):
-    """Вьюсет модели Ingredient."""
+    """Вьюсет ингредиента."""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
@@ -38,11 +38,11 @@ class IngredientViewSet(ViewListRetrieveMixinsSet):
 
 
 class UsersViewSet(viewsets.GenericViewSet):
-    """Вьюсет модели User."""
+    """Вьюсет пользователя."""
     @action(detail=True, url_path='subscribe', methods=('post', 'delete'),
             permission_classes=(permissions.IsAuthenticated,))
     def subscribe(self, request, pk):
-        """Метод создания и удаления 'subscribe'."""
+        """Метод создания и удаления подписки."""
         author = get_object_or_404(User, id=pk)
         try:
             if request.method == 'POST':
@@ -60,7 +60,7 @@ class UsersViewSet(viewsets.GenericViewSet):
     @action(detail=False, url_path='subscriptions', methods=('get',),
             permission_classes=(permissions.IsAuthenticated,))
     def subscriptions(self, request):
-        """Метод получения списка 'subscriptions'."""
+        """Метод получения списка подписок."""
         queryset = User.objects.filter(follow__user=self.request.user).all()
         paginator = LimitOffsetPagination()
         page = paginator.paginate_queryset(queryset, request)
@@ -70,7 +70,7 @@ class UsersViewSet(viewsets.GenericViewSet):
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    """ViewSet для Recipe."""
+    """Вьюсет рецепта."""
     queryset = Recipe.objects.all()
     permission_classes = (AuthorOrAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)

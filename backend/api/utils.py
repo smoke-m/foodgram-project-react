@@ -12,7 +12,7 @@ from .serializers import MiniRecipeSerializer
 
 
 def shopping_cart_pdf(shopping_list):
-    """Создание pdf файла."""
+    """Создание пдф файла."""
     buffer = BytesIO()
     font_path = ('fonts/arial.ttf')
     pdfmetrics.registerFont(TTFont('Arial', font_path))
@@ -35,7 +35,7 @@ def shopping_cart_pdf(shopping_list):
 
 
 def def_favorite_shopping(request, recipe, model):
-    """Функция логики favorite, shopping_cart."""
+    """Функция логики избраного и корзины."""
     if request.method == 'POST':
         if model.filter(user=request.user, recipe=recipe).exists():
             return Response({'errors': 'Рецепт уже добавлен'},
